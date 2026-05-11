@@ -1,8 +1,13 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
+import { IonicModule } from '@ionic/angular'; // <-- Importamos IonicModule desde la ruta principal
 
-import { routes } from './app.routes';
+// Importa tus rutas aquí (seguramente ya lo tienes)
+// import { routes } from './app.routes'; 
 
 export const appConfig: ApplicationConfig = {
-  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes)]
+  providers: [
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    importProvidersFrom(IonicModule.forRoot({}))
+  ]
 };
