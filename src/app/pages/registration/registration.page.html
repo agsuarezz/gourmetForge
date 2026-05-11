@@ -1,0 +1,33 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Register</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="registrationForm" (ngSubmit)="onRegister()">
+    <ion-item>
+      <ion-label position="floating">Email</ion-label>
+      <ion-input formControlName="email" type="email"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Password</ion-label>
+      <ion-input formControlName="password" type="password"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">First Name</ion-label>
+      <ion-input formControlName="firstName" type="text"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Last Name</ion-label>
+      <ion-input formControlName="lastName" type="text"></ion-input>
+    </ion-item>
+
+    <ion-button expand="block" type="submit" [disabled]="registrationForm.invalid" class="ion-margin-top">
+      Sign Up
+    </ion-button>
+  </form>
+</ion-content>
