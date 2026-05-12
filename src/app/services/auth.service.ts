@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Auth, createUserWithEmailAndPassword } from '@angular/fire/auth';
+import { Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from '@angular/fire/auth';
 import { Firestore, doc, setDoc } from '@angular/fire/firestore';
 
 export interface UserProfile {
@@ -16,6 +16,10 @@ export class AuthService {
 
   async signUp(email: string, password: string) {
     return createUserWithEmailAndPassword(this.auth, email, password);
+  }
+
+  async signIn(email: string, password: string) {
+    return signInWithEmailAndPassword(this.auth, email, password);
   }
 
   async updateUserProfile(uid: string, profile: UserProfile) {

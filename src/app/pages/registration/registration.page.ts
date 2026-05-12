@@ -40,7 +40,7 @@ export class RegistrationPage {
         lastName,
       });
 
-      this.router.navigate(['/']); // Redirect to home/login after registration
+      this.router.navigate(['/login']); // Redirect to home/login after registration
     } catch (error) {
       console.error('Registration error:', error);
       alert('Registration failed. Please try again.');
