@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { AuthService } from '../../services/auth.service';
-import { Router } from '@angular/router';
+import { NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-registration',
@@ -15,7 +15,7 @@ import { Router } from '@angular/router';
 export class RegistrationPage {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
-  private router = inject(Router);
+  private navCtrl = inject(NavController);
 
   registrationForm: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -25,22 +25,14 @@ export class RegistrationPage {
   });
 
   async onRegister() {
-    if (this.registrationForm.invalid) {
-      return;
-    }
+    if (this.registrationForm.invalid) return;
 
     const { email, password, firstName, lastName } = this.registrationForm.value;
 
     try {
       const userCredential = await this.authService.signUp(email, password);
-      const uid = userCredential.user.uid;
-
-      await this.authService.updateUserProfile(uid, {
-        firstName,
-        lastName,
-      });
-
-      this.router.navigate(['/login']); // Redirect to home/login after registration
+      await this.authService.updateUserProfile(userCredential.user.uid, { firstName, lastName });
+      this.navCtrl.navigateRoot('/login');
     } catch (error) {
       console.error('Registration error:', error);
       alert('Registration failed. Please try again.');

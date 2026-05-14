@@ -1,0 +1,114 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>
+      <ion-icon name="heart" class="ion-margin-end"></ion-icon>
+      Recetas
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()">
+        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!-- User info banner -->
+  <ion-item lines="none" color="light" class="ion-margin-bottom user-banner" *ngIf="userEmail">
+    <ion-icon name="person-circle-outline" slot="start" color="primary"></ion-icon>
+    <ion-label>
+      <p>Conectado como</p>
+      <h3>{{ userEmail }}</h3>
+    </ion-label>
+  </ion-item>
+
+  <!-- Legend -->
+  <div class="legend ion-margin-bottom">
+    <ion-chip color="warning" outline="true">
+      <ion-icon name="heart"></ion-icon>
+      <ion-label>Favorito</ion-label>
+    </ion-chip>
+    <ion-chip color="medium" outline="true">
+      <ion-icon name="heart-outline"></ion-icon>
+      <ion-label>No favorito</ion-label>
+    </ion-chip>
+  </div>
+
+  <!-- Loading spinner -->
+  <div class="ion-text-center ion-padding" *ngIf="isLoading">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Cargando recetas...</p>
+  </div>
+
+  <!-- Empty state -->
+  <div class="ion-text-center ion-padding" *ngIf="!isLoading && recipes.length === 0">
+    <ion-icon name="restaurant-outline" size="large" color="medium"></ion-icon>
+    <p>No hay recetas disponibles.</p>
+  </div>
+
+  <!-- Recipes list -->
+  <ion-list *ngIf="!isLoading && recipes.length > 0">
+    <ion-item
+      *ngFor="let recipe of recipes"
+      [class.favorite-item]="recipe.isFavorite"
+      (click)="goToDetail(recipe)"
+      button
+      detail="true">
+
+      <!-- Thumbnail / icon -->
+      <ion-avatar slot="start">
+        <img *ngIf="recipe.imageUrl; else iconTpl" [src]="recipe.imageUrl" [alt]="recipe.name" />
+        <ng-template #iconTpl>
+          <div class="recipe-icon-placeholder">
+            <ion-icon name="restaurant" color="primary"></ion-icon>
+          </div>
+        </ng-template>
+      </ion-avatar>
+
+      <ion-label>
+        <!-- Name + favorite badge -->
+        <h2 class="recipe-name">
+          {{ recipe.name }}
+          <ion-badge *ngIf="recipe.isFavorite" color="warning" class="fav-badge">
+            ♥ Favorito
+          </ion-badge>
+        </h2>
+
+        <!-- Category + difficulty -->
+        <p>
+          <ion-chip [color]="getDifficultyColor(recipe.difficulty)" class="difficulty-chip">
+            {{ recipe.difficulty }}
+          </ion-chip>
+          <span class="category-text">{{ recipe.category }}</span>
+        </p>
+
+        <!-- Description snippet -->
+        <p class="description-text" *ngIf="recipe.description">
+          {{ recipe.description | slice:0:80 }}{{ (recipe.description?.length ?? 0) > 80 ? '…' : '' }}
+        </p>
+
+        <!-- Prep time -->
+        <p *ngIf="recipe.prepTime">
+          <ion-icon name="time-outline"></ion-icon>
+          {{ recipe.prepTime }} min
+        </p>
+      </ion-label>
+
+      <!-- Favorite toggle button -->
+      <ion-button
+        slot="end"
+        fill="clear"
+        [color]="recipe.isFavorite ? 'warning' : 'medium'"
+        (click)="toggleFavorite($event, recipe)"
+        aria-label="Toggle favorite">
+        <ion-icon
+          slot="icon-only"
+          [name]="recipe.isFavorite ? 'heart' : 'heart-outline'">
+        </ion-icon>
+      </ion-button>
+
+    </ion-item>
+  </ion-list>
+
+</ion-content>

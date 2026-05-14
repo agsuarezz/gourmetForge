@@ -1,0 +1,82 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/favorites" (click)="goBack()"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ recipe?.name || 'Detalle' }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="toggleFavorite()" *ngIf="recipe">
+        <ion-icon
+          slot="icon-only"
+          [name]="isFavorite ? 'heart' : 'heart-outline'"
+          [color]="isFavorite ? 'warning' : 'light'">
+        </ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!-- Loading -->
+  <div class="ion-text-center ion-padding" *ngIf="isLoading">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+  </div>
+
+  <!-- Recipe detail card -->
+  <ng-container *ngIf="!isLoading && recipe">
+
+    <!-- Hero image or placeholder -->
+    <div class="hero-image" *ngIf="recipe.imageUrl">
+      <img [src]="recipe.imageUrl" [alt]="recipe.name" />
+    </div>
+
+    <ion-card>
+      <ion-card-header>
+        <div class="title-row">
+          <ion-card-title>{{ recipe.name }}</ion-card-title>
+          <ion-badge *ngIf="isFavorite" color="warning" class="fav-badge">♥ Favorito</ion-badge>
+        </div>
+        <ion-card-subtitle>{{ recipe.category }}</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+
+        <!-- Meta chips -->
+        <div class="meta-chips">
+          <ion-chip [color]="getDifficultyColor(recipe.difficulty)">
+            <ion-icon name="flame-outline"></ion-icon>
+            <ion-label>{{ recipe.difficulty }}</ion-label>
+          </ion-chip>
+          <ion-chip color="primary" outline="true" *ngIf="recipe.prepTime">
+            <ion-icon name="time-outline"></ion-icon>
+            <ion-label>{{ recipe.prepTime }} min</ion-label>
+          </ion-chip>
+        </div>
+
+        <!-- Description -->
+        <p class="description" *ngIf="recipe.description">{{ recipe.description }}</p>
+
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Favorite toggle CTA -->
+    <ion-button
+      expand="block"
+      [color]="isFavorite ? 'warning' : 'primary'"
+      (click)="toggleFavorite()"
+      class="ion-margin-top">
+      <ion-icon [name]="isFavorite ? 'heart' : 'heart-outline'" slot="start"></ion-icon>
+      {{ isFavorite ? 'Quitar de favoritos' : 'Añadir a favoritos' }}
+    </ion-button>
+
+  </ng-container>
+
+  <!-- Not found -->
+  <div class="ion-text-center ion-padding" *ngIf="!isLoading && !recipe">
+    <ion-icon name="alert-circle-outline" size="large" color="danger"></ion-icon>
+    <p>Receta no encontrada.</p>
+    <ion-button (click)="goBack()">Volver</ion-button>
+  </div>
+
+</ion-content>

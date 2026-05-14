@@ -1,0 +1,30 @@
+.hero-image img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.fav-badge {
+  font-size: 0.7rem;
+}
+
+.meta-chips {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.description {
+  color: var(--ion-color-dark-shade);
+  line-height: 1.6;
+}

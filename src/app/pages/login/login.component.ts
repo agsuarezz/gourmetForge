@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { AuthService } from '../../services/auth.service';
-import { Router } from '@angular/router';
+import { NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-login',
@@ -15,7 +15,7 @@ import { Router } from '@angular/router';
 export class LoginPage {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
-  private router = inject(Router);
+  private navCtrl = inject(NavController);
 
   loginForm: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -24,15 +24,17 @@ export class LoginPage {
 
   async onLogin() {
     if (this.loginForm.invalid) return;
-
     const { email, password } = this.loginForm.value;
-
     try {
       await this.authService.signIn(email, password);
-      this.router.navigate(['/home']);
+      this.navCtrl.navigateRoot('/favorites');
     } catch (error) {
       console.error('Login error:', error);
       alert('Login failed. Please check your credentials.');
     }
+  }
+
+  goToRegister() {
+    this.navCtrl.navigateForward('/registration');
   }
 }
