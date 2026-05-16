@@ -5,7 +5,12 @@
     </ion-buttons>
     <ion-title>{{ recipe?.name || 'Detalle' }}</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="toggleFavorite()" *ngIf="recipe">
+      <!-- Quick heart toggle in header -->
+      <ion-button
+        *ngIf="recipe"
+        (click)="toggleFavorite()"
+        [disabled]="isTogglingFavorite"
+        aria-label="Alternar favorito">
         <ion-icon
           slot="icon-only"
           [name]="isFavorite ? 'heart' : 'heart-outline'"
@@ -16,67 +21,123 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
+<ion-content>
 
-  <!-- Loading -->
-  <div class="ion-text-center ion-padding" *ngIf="isLoading">
+  <!-- ── Loading ── -->
+  <div class="center-state" *ngIf="isLoading">
     <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Cargando receta…</p>
   </div>
 
-  <!-- Recipe detail card -->
+  <!-- ── Not found ── -->
+  <div class="center-state" *ngIf="!isLoading && !recipe">
+    <ion-icon name="alert-circle-outline" size="large" color="danger"></ion-icon>
+    <p>Receta no encontrada.</p>
+    <ion-button (click)="goBack()" color="primary">Volver</ion-button>
+  </div>
+
+  <!-- ── Recipe detail ── -->
   <ng-container *ngIf="!isLoading && recipe">
 
-    <!-- Hero image or placeholder -->
-    <div class="hero-image" *ngIf="recipe.imageUrl">
-      <img [src]="recipe.imageUrl" [alt]="recipe.name" />
+    <!-- Hero image -->
+    <div class="hero-wrapper" *ngIf="recipe.imageUrl && !imageError; else imagePlaceholder">
+      <img
+        class="hero-image"
+        [src]="recipe.imageUrl"
+        [alt]="recipe.name"
+        (error)="onImageError()" />
+      <!-- Favorite badge overlay -->
+      <div class="fav-overlay" *ngIf="isFavorite">
+        <ion-icon name="heart" color="warning"></ion-icon>
+        Favorito
+      </div>
     </div>
 
-    <ion-card>
-      <ion-card-header>
-        <div class="title-row">
-          <ion-card-title>{{ recipe.name }}</ion-card-title>
-          <ion-badge *ngIf="isFavorite" color="warning" class="fav-badge">♥ Favorito</ion-badge>
-        </div>
-        <ion-card-subtitle>{{ recipe.category }}</ion-card-subtitle>
-      </ion-card-header>
+    <!-- Fallback placeholder when no image or broken URL -->
+    <ng-template #imagePlaceholder>
+      <div class="hero-placeholder">
+        <ion-icon name="restaurant" color="primary"></ion-icon>
+      </div>
+    </ng-template>
 
-      <ion-card-content>
+    <!-- ── Info card ── -->
+    <div class="detail-card ion-padding">
 
-        <!-- Meta chips -->
-        <div class="meta-chips">
-          <ion-chip [color]="getDifficultyColor(recipe.difficulty)">
-            <ion-icon name="flame-outline"></ion-icon>
-            <ion-label>{{ recipe.difficulty }}</ion-label>
-          </ion-chip>
-          <ion-chip color="primary" outline="true" *ngIf="recipe.prepTime">
-            <ion-icon name="time-outline"></ion-icon>
-            <ion-label>{{ recipe.prepTime }} min</ion-label>
-          </ion-chip>
-        </div>
+      <!-- Title row -->
+      <div class="title-row">
+        <h1 class="recipe-title">{{ recipe.name }}</h1>
+        <ion-badge *ngIf="isFavorite" color="warning" class="fav-badge">
+          <ion-icon name="heart"></ion-icon> Favorito
+        </ion-badge>
+      </div>
 
-        <!-- Description -->
-        <p class="description" *ngIf="recipe.description">{{ recipe.description }}</p>
+      <!-- Category -->
+      <p class="category-label">
+        <ion-icon name="pricetag-outline"></ion-icon>
+        {{ recipe.category }}
+      </p>
 
-      </ion-card-content>
-    </ion-card>
+      <!-- Meta chips -->
+      <div class="meta-chips">
 
-    <!-- Favorite toggle CTA -->
-    <ion-button
-      expand="block"
-      [color]="isFavorite ? 'warning' : 'primary'"
-      (click)="toggleFavorite()"
-      class="ion-margin-top">
-      <ion-icon [name]="isFavorite ? 'heart' : 'heart-outline'" slot="start"></ion-icon>
-      {{ isFavorite ? 'Quitar de favoritos' : 'Añadir a favoritos' }}
-    </ion-button>
+        <ion-chip [color]="getDifficultyColor(recipe.difficulty)" class="meta-chip">
+          <ion-icon [name]="getDifficultyIcon(recipe.difficulty)"></ion-icon>
+          <ion-label>{{ recipe.difficulty }}</ion-label>
+        </ion-chip>
+
+        <ion-chip color="primary" outline="true" class="meta-chip" *ngIf="recipe.prepTime">
+          <ion-icon name="time-outline"></ion-icon>
+          <ion-label>{{ recipe.prepTime }} min</ion-label>
+        </ion-chip>
+
+      </div>
+
+      <!-- Divider -->
+      <ion-item lines="full" class="divider-item"></ion-item>
+
+      <!-- Description -->
+      <div class="section" *ngIf="recipe.description">
+        <h2 class="section-title">
+          <ion-icon name="document-text-outline"></ion-icon>
+          Descripción
+        </h2>
+        <p class="description-text">{{ recipe.description }}</p>
+      </div>
+
+    </div>
+
+    <!-- ── Favorite CTA button ── -->
+    <div class="ion-padding cta-area">
+      <ion-button
+        expand="block"
+        [color]="isFavorite ? 'warning' : 'primary'"
+        (click)="toggleFavorite()"
+        [disabled]="isTogglingFavorite"
+        class="fav-btn">
+
+        <ion-spinner *ngIf="isTogglingFavorite" name="dots" slot="start"></ion-spinner>
+        <ion-icon
+          *ngIf="!isTogglingFavorite"
+          [name]="isFavorite ? 'heart-dislike-outline' : 'heart-outline'"
+          slot="start">
+        </ion-icon>
+
+        {{ isFavorite ? 'Quitar de favoritos' : 'Añadir a favoritos' }}
+      </ion-button>
+
+      <!-- Explanatory caption -->
+      <p class="cta-caption">
+        <ion-icon name="information-circle-outline"></ion-icon>
+        Los favoritos se guardan localmente en el dispositivo (SQLite).
+      </p>
+    </div>
 
   </ng-container>
 
-  <!-- Not found -->
-  <div class="ion-text-center ion-padding" *ngIf="!isLoading && !recipe">
-    <ion-icon name="alert-circle-outline" size="large" color="danger"></ion-icon>
-    <p>Receta no encontrada.</p>
-    <ion-button (click)="goBack()">Volver</ion-button>
+  <!-- ── Toast notification ── -->
+  <div class="custom-toast" [class.visible]="showToast" [attr.data-color]="toastColor">
+    <ion-icon [name]="toastColor === 'success' ? 'checkmark-circle' : toastColor === 'medium' ? 'remove-circle' : 'alert-circle'"></ion-icon>
+    {{ toastMessage }}
   </div>
 
 </ion-content>
